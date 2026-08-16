@@ -191,7 +191,6 @@
       margin: 0 auto 2rem;
     }
 
-    /* Rotating rings around profile picture */
     .loader-ring {
       position: absolute;
       top: 0;
@@ -229,7 +228,6 @@
       border-width: 2px;
     }
 
-    /* Profile picture container */
     .loader-profile-picture {
       position: absolute;
       top: 50%;
@@ -254,7 +252,6 @@
       display: block;
     }
 
-    /* Gradient overlay on profile picture */
     .loader-profile-picture::after {
       content: '';
       position: absolute;
@@ -301,7 +298,6 @@
       50% { opacity: 1; }
     }
 
-    /* Skip to main content - Accessibility */
     .skip-link {
       position: absolute;
       top: -40px;
@@ -385,7 +381,6 @@
       overflow: hidden;
     }
 
-    /* Professional Animated Gradient Orbs */
     .gradient-orbs {
       position: absolute;
       top: 0;
@@ -461,7 +456,6 @@
       }
     }
 
-    /* Subtle grid pattern overlay */
     .grid-pattern {
       position: absolute;
       top: 0;
@@ -1647,7 +1641,6 @@
         display: none;
       }
 
-      /* Adjust loader for mobile */
       .loader-rotating-wrapper {
         width: 120px;
         height: 120px;
@@ -1771,7 +1764,6 @@
         stroke-dashoffset: 125.66;
       }
 
-      /* Smaller loader for mobile */
       .loader-rotating-wrapper {
         width: 100px;
         height: 100px;
@@ -1814,7 +1806,6 @@
     <!-- ===== HERO ===== -->
     <main id="main-content">
       <section class="hero" aria-labelledby="hero-heading">
-        <!-- Professional Animated Gradient Orbs -->
         <div class="gradient-orbs" aria-hidden="true">
           <div class="orb"></div>
           <div class="orb"></div>
@@ -1822,7 +1813,6 @@
           <div class="orb"></div>
         </div>
         
-        <!-- Subtle grid pattern overlay -->
         <div class="grid-pattern" aria-hidden="true"></div>
 
         <div class="hero-grid">
@@ -1965,7 +1955,6 @@
               </div>
               
               <form id="contactForm" action="https://formsubmit.co/Gagana.admin@gmail.com" method="POST">
-                <!-- FormSubmit Configuration -->
                 <input type="hidden" name="_subject" value="New Contact Form Submission - GaganaPerera.com">
                 <input type="hidden" name="_template" value="table">
                 <input type="hidden" name="_captcha" value="false">
@@ -2042,7 +2031,6 @@
 
   <script>
     (function() {
-      // ===== SCROLL TO TOP ON PAGE LOAD/RELOAD =====
       window.addEventListener('beforeunload', function() {
         window.scrollTo(0, 0);
       });
@@ -2162,21 +2150,17 @@
         }
       });
       
-      // ===== TOAST NOTIFICATION SYSTEM =====
       const toast = document.getElementById('toast');
       const toastClose = document.getElementById('toastClose');
       let toastTimeout = null;
       
       function showToast(type, title, message) {
-        // Clear existing timeout
         if (toastTimeout) {
           clearTimeout(toastTimeout);
         }
         
-        // Reset toast
         toast.className = 'toast';
         
-        // Set type-specific styles
         if (type === 'success') {
           toast.classList.add('success');
           toast.querySelector('.toast-icon i').className = 'fas fa-check-circle';
@@ -2185,16 +2169,13 @@
           toast.querySelector('.toast-icon i').className = 'fas fa-times-circle';
         }
         
-        // Set content
         toast.querySelector('.toast-content h4').textContent = title;
         toast.querySelector('.toast-content p').textContent = message;
         
-        // Show toast
         setTimeout(() => {
           toast.classList.add('show');
         }, 100);
         
-        // Auto-hide after 10 seconds
         toastTimeout = setTimeout(() => {
           hideToast();
         }, 10000);
@@ -2208,40 +2189,29 @@
         }
       }
       
-      // Close button
       toastClose.addEventListener('click', hideToast);
       
-      // ===== FORM HANDLING (FIXED - No preventDefault) =====
       const contactForm = document.getElementById('contactForm');
       const submitBtn = document.getElementById('submitBtn');
       
       contactForm.addEventListener('submit', function(e) {
-        // Show loading state
         submitBtn.classList.add('loading');
         submitBtn.disabled = true;
         
-        // Hide any existing toast
         hideToast();
         
-        // Show success toast after form starts submitting
         setTimeout(() => {
-          // Reset button state
           submitBtn.classList.remove('loading');
           submitBtn.disabled = false;
           
-          // Show success toast
           showToast(
             'success',
             'Message Sent Successfully!',
             'Thank you for reaching out. I\'ll get back to you within 24 hours.'
           );
           
-          // Reset form
           contactForm.reset();
         }, 1500);
-        
-        // DO NOT prevent default - let FormSubmit handle the actual submission
-        // The form will submit to FormSubmit which sends the email to Gagana.admin@gmail.com
       });
     })();
   </script>
