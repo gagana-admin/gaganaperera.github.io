@@ -182,7 +182,11 @@
 
     .scroll-top-btn { position: fixed; bottom: 2rem; right: 2rem; width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35); transition: all 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 999; opacity: 0; visibility: hidden; transform: translateY(20px) scale(0.8); pointer-events: none; border: 2px solid rgba(255, 255, 255, 0.2); }
     .scroll-top-btn.show { opacity: 1; visibility: visible; transform: translateY(0) scale(1); pointer-events: auto; }
-    .scroll-top-btn:hover { background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%); box-shadow: 0 12px 30px rgba(37, 99, 235, 0.45); transform: translateY(-4px) scale(1.05); }
+    .scroll-top-btn:hover { background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%); box-shadow: 0 12px 30px rgba(37, 99, 235, 0.45); transform: translateY(-4px) scale(1.05); border-color: rgba(255, 255, 255, 0.4); }
+    .scroll-top-btn:active { transform: translateY(-1px) scale(0.95); box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3); transition-duration: 0.1s; }
+    .scroll-top-btn .progress-ring { position: absolute; top: -2px; left: -2px; width: 52px; height: 52px; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; }
+    .scroll-top-btn.show .progress-ring { opacity: 1; }
+    .scroll-top-btn .progress-ring circle { fill: none; stroke: #93c5fd; stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 157.08; stroke-dashoffset: 157.08; transition: stroke-dashoffset 0.15s ease; }
     .scroll-top-btn .btn-icon { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; transition: transform 0.3s ease; }
     .scroll-top-btn:hover .btn-icon { transform: translateY(-2px); }
     .scroll-top-btn .btn-tooltip { position: absolute; right: calc(100% + 15px); top: 50%; transform: translateY(-50%); background: #1e293b; color: white; padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; letter-spacing: 0.5px; text-transform: uppercase; }
@@ -231,6 +235,8 @@
       .form-row { grid-template-columns: 1fr; }
       .toast { top: 10px; right: 10px; left: 10px; max-width: none; }
       .scroll-top-btn { bottom: 1.2rem; right: 1.2rem; width: 46px; height: 46px; font-size: 1.1rem; }
+      .scroll-top-btn .progress-ring { width: 46px; height: 46px; top: -2px; left: -2px; }
+      .scroll-top-btn .progress-ring circle { stroke-dasharray: 138.23; stroke-dashoffset: 138.23; }
       .scroll-top-btn .btn-tooltip { display: none; }
       .loader-rotating-wrapper { width: 120px; height: 120px; }
     }
@@ -257,6 +263,8 @@
       .contact-form-wrapper { padding: 1.2rem; }
       .form-header h3 { font-size: 1.3rem; }
       .scroll-top-btn { bottom: 1rem; right: 1rem; width: 42px; height: 42px; font-size: 1rem; }
+      .scroll-top-btn .progress-ring { width: 42px; height: 42px; top: -2px; left: -2px; }
+      .scroll-top-btn .progress-ring circle { stroke-dasharray: 125.66; stroke-dashoffset: 125.66; }
       .loader-rotating-wrapper { width: 100px; height: 100px; }
     }
   </style>
@@ -454,6 +462,9 @@
   </div>
 
   <button class="scroll-top-btn" id="scrollTopBtn" aria-label="Scroll back to top" title="Back to top">
+    <svg class="progress-ring" viewBox="0 0 52 52" aria-hidden="true">
+      <circle cx="26" cy="26" r="24" id="progressCircle"></circle>
+    </svg>
     <span class="btn-icon"><i class="fas fa-arrow-up"></i></span>
     <span class="btn-tooltip">Back to top</span>
   </button>
@@ -465,6 +476,14 @@
       
       const loader = document.getElementById('pageLoader');
       const scrollBtn = document.getElementById('scrollTopBtn');
+      const progressCircle = document.getElementById('progressCircle');
+      const circleRadius = progressCircle.r.baseVal.value;
+      const circumference = 2 * Math.PI * circleRadius;
+      
+      progressCircle.style.strokeDasharray = `${circumference}`;
+      progressCircle.style.strokeDashoffset = `${circumference}`;
+      
+      let ticking = false;
       
       window.addEventListener('load', function() {
         window.scrollTo(0, 0);
@@ -472,15 +491,52 @@
       });
       setTimeout(() => { loader.classList.add('hidden'); }, 4000);
       
+      function updateScrollBtn() {
+        const currentScrollY = window.scrollY;
+        const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+        
+        if (currentScrollY > 300) {
+          scrollBtn.classList.add('show');
+          if (scrollHeight > 0) {
+            const scrollProgress = currentScrollY / scrollHeight;
+            const dashOffset = circumference - (scrollProgress * circumference);
+            progressCircle.style.strokeDashoffset = dashOffset;
+          }
+        } else {
+          scrollBtn.classList.remove('show', 'pulse-animation');
+        }
+        ticking = false;
+      }
+      
       window.addEventListener('scroll', function() {
-        if (window.scrollY > 300) { scrollBtn.classList.add('show'); }
-        else { scrollBtn.classList.remove('show'); }
+        if (!ticking) {
+          window.requestAnimationFrame(updateScrollBtn);
+          ticking = true;
+        }
       }, { passive: true });
       
       scrollBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        const startPosition = window.scrollY;
+        const duration = 600;
+        const startTime = performance.now();
+        
+        function easeInOutCubic(t) {
+          return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
+        
+        function animateScroll(currentTime) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const easeProgress = easeInOutCubic(progress);
+          window.scrollTo(0, startPosition * (1 - easeProgress));
+          if (progress < 1) { requestAnimationFrame(animateScroll); }
+        }
+        
+        requestAnimationFrame(animateScroll);
       });
+      
+      if (window.scrollY > 300) { scrollBtn.classList.add('show'); }
       
       const toast = document.getElementById('toast');
       const toastClose = document.getElementById('toastClose');
@@ -509,10 +565,8 @@
       
       contactForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        
         submitBtn.classList.add('loading');
         submitBtn.disabled = true;
-        
         const formData = new FormData(contactForm);
         
         fetch('https://formsubmit.co/ajax/Gagana.admin@gmail.com', {
@@ -523,7 +577,6 @@
         .then(data => {
           submitBtn.classList.remove('loading');
           submitBtn.disabled = false;
-          
           if (data.success === 'true' || data.success === true) {
             showToast('success', 'Message Sent Successfully!', 'Thank you for reaching out. I\'ll get back to you within 24 hours.');
             contactForm.reset();
