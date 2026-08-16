@@ -2211,7 +2211,7 @@
       // Close button
       toastClose.addEventListener('click', hideToast);
       
-      // ===== FORM HANDLING =====
+      // ===== FORM HANDLING (FIXED - No preventDefault) =====
       const contactForm = document.getElementById('contactForm');
       const submitBtn = document.getElementById('submitBtn');
       
@@ -2223,7 +2223,7 @@
         // Hide any existing toast
         hideToast();
         
-        // Simulate form submission (FormSubmit will handle actual submission)
+        // Show success toast after form starts submitting
         setTimeout(() => {
           // Reset button state
           submitBtn.classList.remove('loading');
@@ -2240,10 +2240,8 @@
           contactForm.reset();
         }, 1500);
         
-        // Note: In production with FormSubmit, the form will submit naturally
-        // and redirect. For demo purposes, we prevent default and show toast.
-        // Remove the 'e.preventDefault()' below if you want FormSubmit to handle it
-        e.preventDefault();
+        // DO NOT prevent default - let FormSubmit handle the actual submission
+        // The form will submit to FormSubmit which sends the email to Gagana.admin@gmail.com
       });
     })();
   </script>
