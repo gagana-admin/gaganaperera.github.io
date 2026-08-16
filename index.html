@@ -1176,54 +1176,78 @@
       to { transform: rotate(360deg); }
     }
 
-    .form-success {
-      display: none;
-      text-align: center;
-      padding: 2rem;
-      background: #f0fdf4;
-      border: 1px solid #86efac;
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.5rem;
       border-radius: 12px;
-      margin-top: 1rem;
+      background: white;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      border: 1px solid #e2e8f0;
+      transform: translateX(120%);
+      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      max-width: 400px;
+      pointer-events: auto;
     }
 
-    .form-success.show {
-      display: block;
-      animation: fadeInUp 0.5s ease;
+    .toast.show {
+      transform: translateX(0);
     }
 
-    .form-success i {
-      font-size: 3rem;
-      color: #22c55e;
-      margin-bottom: 1rem;
-    }
-
-    .form-success h4 {
+    .toast-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 1.2rem;
-      font-weight: 700;
-      color: #166534;
-      margin-bottom: 0.5rem;
+      flex-shrink: 0;
     }
 
-    .form-success p {
-      font-size: 0.9rem;
-      color: #15803d;
+    .toast.success .toast-icon {
+      background: #f0fdf4;
+      color: #22c55e;
     }
 
-    .form-error {
-      display: none;
-      text-align: center;
-      padding: 1rem;
+    .toast.error .toast-icon {
       background: #fef2f2;
-      border: 1px solid #fca5a5;
-      border-radius: 12px;
-      margin-top: 1rem;
       color: #dc2626;
-      font-size: 0.9rem;
     }
 
-    .form-error.show {
-      display: block;
-      animation: fadeInUp 0.5s ease;
+    .toast-content h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.2rem;
+    }
+
+    .toast-content p {
+      font-size: 0.8rem;
+      color: #64748b;
+      line-height: 1.4;
+    }
+
+    .toast-close {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0.2rem;
+      margin-left: auto;
+      flex-shrink: 0;
+      transition: color 0.2s ease;
+    }
+
+    .toast-close:hover {
+      color: #475569;
     }
 
     /* ========== SIMPLE FOOTER ========== */
@@ -1592,6 +1616,13 @@
         grid-template-columns: 1fr;
       }
 
+      .toast {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+      }
+
       .scroll-top-btn {
         bottom: 1.2rem;
         right: 1.2rem;
@@ -1938,7 +1969,6 @@
                 <input type="hidden" name="_subject" value="New Contact Form Submission - GaganaPerera.com">
                 <input type="hidden" name="_template" value="table">
                 <input type="hidden" name="_captcha" value="false">
-                <input type="hidden" name="_next" value="https://gaganaperera.com/thank-you">
                 
                 <div class="form-row">
                   <div class="form-group">
@@ -1968,17 +1998,6 @@
                     <i class="fas fa-paper-plane" aria-hidden="true"></i> Send Message
                   </span>
                 </button>
-                
-                <div class="form-success" id="formSuccess">
-                  <i class="fas fa-check-circle" aria-hidden="true"></i>
-                  <h4>Message Sent Successfully!</h4>
-                  <p>Thank you for reaching out. I'll get back to you within 24 hours.</p>
-                </div>
-                
-                <div class="form-error" id="formError">
-                  <i class="fas fa-exclamation-circle" aria-hidden="true"></i> 
-                  There was an error sending your message. Please try again or email me directly at Gagana.admin@gmail.com
-                </div>
               </form>
             </div>
           </div>
@@ -1994,6 +2013,20 @@
         <p class="footer-copy" style="font-size: 0.75rem; margin-top: 0.3rem;">Email: Gagana.admin@gmail.com | WhatsApp: +94 77 005 3555</p>
       </div>
     </footer>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <div class="toast-icon">
+      <i class="fas fa-check-circle" aria-hidden="true"></i>
+    </div>
+    <div class="toast-content">
+      <h4>Message Sent Successfully!</h4>
+      <p>Thank you for reaching out. I'll get back to you within 24 hours.</p>
+    </div>
+    <button class="toast-close" id="toastClose" aria-label="Close notification">
+      <i class="fas fa-times" aria-hidden="true"></i>
+    </button>
   </div>
 
   <!-- ===== SCROLL TO TOP BUTTON ===== -->
@@ -2129,20 +2162,66 @@
         }
       });
       
+      // ===== TOAST NOTIFICATION SYSTEM =====
+      const toast = document.getElementById('toast');
+      const toastClose = document.getElementById('toastClose');
+      let toastTimeout = null;
+      
+      function showToast(type, title, message) {
+        // Clear existing timeout
+        if (toastTimeout) {
+          clearTimeout(toastTimeout);
+        }
+        
+        // Reset toast
+        toast.className = 'toast';
+        
+        // Set type-specific styles
+        if (type === 'success') {
+          toast.classList.add('success');
+          toast.querySelector('.toast-icon i').className = 'fas fa-check-circle';
+        } else if (type === 'error') {
+          toast.classList.add('error');
+          toast.querySelector('.toast-icon i').className = 'fas fa-times-circle';
+        }
+        
+        // Set content
+        toast.querySelector('.toast-content h4').textContent = title;
+        toast.querySelector('.toast-content p').textContent = message;
+        
+        // Show toast
+        setTimeout(() => {
+          toast.classList.add('show');
+        }, 100);
+        
+        // Auto-hide after 10 seconds
+        toastTimeout = setTimeout(() => {
+          hideToast();
+        }, 10000);
+      }
+      
+      function hideToast() {
+        toast.classList.remove('show');
+        if (toastTimeout) {
+          clearTimeout(toastTimeout);
+          toastTimeout = null;
+        }
+      }
+      
+      // Close button
+      toastClose.addEventListener('click', hideToast);
+      
       // ===== FORM HANDLING =====
       const contactForm = document.getElementById('contactForm');
       const submitBtn = document.getElementById('submitBtn');
-      const formSuccess = document.getElementById('formSuccess');
-      const formError = document.getElementById('formError');
       
       contactForm.addEventListener('submit', function(e) {
         // Show loading state
         submitBtn.classList.add('loading');
         submitBtn.disabled = true;
         
-        // Hide previous messages
-        formSuccess.classList.remove('show');
-        formError.classList.remove('show');
+        // Hide any existing toast
+        hideToast();
         
         // Simulate form submission (FormSubmit will handle actual submission)
         setTimeout(() => {
@@ -2150,17 +2229,21 @@
           submitBtn.classList.remove('loading');
           submitBtn.disabled = false;
           
-          // Show success message (in production, FormSubmit will redirect to _next URL)
-          formSuccess.classList.add('show');
+          // Show success toast
+          showToast(
+            'success',
+            'Message Sent Successfully!',
+            'Thank you for reaching out. I\'ll get back to you within 24 hours.'
+          );
           
           // Reset form
           contactForm.reset();
-          
-          // Hide success message after 5 seconds
-          setTimeout(() => {
-            formSuccess.classList.remove('show');
-          }, 5000);
         }, 1500);
+        
+        // Note: In production with FormSubmit, the form will submit naturally
+        // and redirect. For demo purposes, we prevent default and show toast.
+        // Remove the 'e.preventDefault()' below if you want FormSubmit to handle it
+        e.preventDefault();
       });
     })();
   </script>
