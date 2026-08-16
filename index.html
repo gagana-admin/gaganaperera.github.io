@@ -159,6 +159,11 @@
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     .form-submit { width: 100%; padding: 1rem; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 0.5rem; letter-spacing: 0.3px; }
     .form-submit:hover { background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%); box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3); transform: translateY(-2px); }
+    .form-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    .form-submit .spinner { display: none; width: 20px; height: 20px; border: 2px solid rgba(255, 255, 255, 0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    .form-submit.loading .spinner { display: block; }
+    .form-submit.loading .submit-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     .toast { position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem; border-radius: 12px; background: white; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); border: 1px solid #e2e8f0; transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); max-width: 400px; }
     .toast.show { transform: translateX(0); }
@@ -177,7 +182,7 @@
 
     .scroll-top-btn { position: fixed; bottom: 2rem; right: 2rem; width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35); transition: all 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 999; opacity: 0; visibility: hidden; transform: translateY(20px) scale(0.8); pointer-events: none; border: 2px solid rgba(255, 255, 255, 0.2); }
     .scroll-top-btn.show { opacity: 1; visibility: visible; transform: translateY(0) scale(1); pointer-events: auto; }
-    .scroll-top-btn:hover { background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%); box-shadow: 0 12px 30px rgba(37, 99, 235, 0.45); transform: translateY(-4px) scale(1.05); border-color: rgba(255, 255, 255, 0.4); }
+    .scroll-top-btn:hover { background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%); box-shadow: 0 12px 30px rgba(37, 99, 235, 0.45); transform: translateY(-4px) scale(1.05); }
     .scroll-top-btn .btn-icon { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; transition: transform 0.3s ease; }
     .scroll-top-btn:hover .btn-icon { transform: translateY(-2px); }
     .scroll-top-btn .btn-tooltip { position: absolute; right: calc(100% + 15px); top: 50%; transform: translateY(-50%); background: #1e293b; color: white; padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; letter-spacing: 0.5px; text-transform: uppercase; }
@@ -420,6 +425,7 @@
                 </div>
                 
                 <button type="submit" class="form-submit" id="submitBtn">
+                  <span class="spinner"></span>
                   <span class="submit-text"><i class="fas fa-paper-plane"></i> Send Message</span>
                 </button>
               </form>
@@ -499,9 +505,13 @@
       toastClose.addEventListener('click', hideToast);
       
       const contactForm = document.getElementById('contactForm');
+      const submitBtn = document.getElementById('submitBtn');
       
       contactForm.addEventListener('submit', function(e) {
         e.preventDefault();
+        
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
         
         const formData = new FormData(contactForm);
         
@@ -511,6 +521,9 @@
         })
         .then(response => response.json())
         .then(data => {
+          submitBtn.classList.remove('loading');
+          submitBtn.disabled = false;
+          
           if (data.success === 'true' || data.success === true) {
             showToast('success', 'Message Sent Successfully!', 'Thank you for reaching out. I\'ll get back to you within 24 hours.');
             contactForm.reset();
@@ -519,6 +532,8 @@
           }
         })
         .catch(error => {
+          submitBtn.classList.remove('loading');
+          submitBtn.disabled = false;
           showToast('error', 'Submission Failed', 'Please try again or email me directly at Gagana.admin@gmail.com');
         });
       });
