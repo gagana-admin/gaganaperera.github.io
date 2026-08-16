@@ -2113,7 +2113,6 @@
       
       toastClose.addEventListener('click', hideToast);
       
-      // Check if form was submitted successfully (after redirect)
       if (window.location.search.includes('submitted=success')) {
         setTimeout(() => {
           showToast(
@@ -2123,7 +2122,6 @@
           );
         }, 500);
         
-        // Clean URL
         if (history.replaceState) {
           history.replaceState(null, '', window.location.pathname);
         }
