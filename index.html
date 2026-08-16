@@ -14,7 +14,7 @@
   <meta property="og:title" content="Gagana Perera · Virtual Assistant & Digital Marketer">
   <meta property="og:description" content="Your reliable partner for admin support & digital growth. Save 20+ hours/week with a dedicated VA.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://gaganaperera.com">
+  <meta property="og:url" content="https://gagana-admin.github.io/">
   <meta property="og:image" content="profile.jpeg">
   <meta property="og:image:alt" content="Gagana Perera - Professional Virtual Assistant & Digital Marketer">
   <meta property="og:site_name" content="Gagana Perera">
@@ -25,7 +25,7 @@
   <meta name="twitter:description" content="Save 20+ hours/week. Admin support, social media, email marketing & more.">
   <meta name="twitter:image" content="profile.jpeg">
   
-  <link rel="canonical" href="https://gaganaperera.com">
+  <link rel="canonical" href="https://gagana-admin.github.io/">
   
   <script type="application/ld+json">
     {
@@ -36,7 +36,7 @@
       "familyName": "Perera",
       "jobTitle": "Virtual Assistant & Digital Marketer",
       "description": "Professional Virtual Assistant and Digital Marketer helping founders and teams worldwide save 20+ hours per week through administrative support, social media management, and digital growth strategies.",
-      "url": "https://gaganaperera.com",
+      "url": "https://gagana-admin.github.io/",
       "image": "profile.jpeg",
       "sameAs": [
         "https://www.linkedin.com/in/gaganaperera-digitalmarketer-virtualassistant"
@@ -107,19 +107,19 @@
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "https://gaganaperera.com"
+          "item": "https://gagana-admin.github.io/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "Virtual Assistant Services",
-          "item": "https://gaganaperera.com#services"
+          "item": "https://gagana-admin.github.io/#services"
         },
         {
           "@type": "ListItem",
           "position": 3,
           "name": "Contact",
-          "item": "https://gaganaperera.com#contact"
+          "item": "https://gagana-admin.github.io/#contact"
         }
       ]
     }
@@ -1907,6 +1907,7 @@
                 <input type="hidden" name="_subject" value="New Contact Form Submission - GaganaPerera.com">
                 <input type="hidden" name="_template" value="table">
                 <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_next" value="https://gagana-admin.github.io/?submitted=success">
                 
                 <div class="form-row">
                   <div class="form-group">
@@ -2112,19 +2113,21 @@
       
       toastClose.addEventListener('click', hideToast);
       
-      // Form submits naturally to FormSubmit - NO JavaScript interference
-      const contactForm = document.getElementById('contactForm');
-      
-      contactForm.addEventListener('submit', function() {
-        // Show success toast after form starts submitting
+      // Check if form was submitted successfully (after redirect)
+      if (window.location.search.includes('submitted=success')) {
         setTimeout(() => {
           showToast(
             'success',
             'Message Sent Successfully!',
             'Thank you for reaching out. I\'ll get back to you within 24 hours.'
           );
-        }, 1000);
-      });
+        }, 500);
+        
+        // Clean URL
+        if (history.replaceState) {
+          history.replaceState(null, '', window.location.pathname);
+        }
+      }
     })();
   </script>
 </body>
